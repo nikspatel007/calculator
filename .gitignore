@@ -1,0 +1,29 @@
+# VerMAS workflow artifacts
+.worktrees/
+DONE.md
+REVIEW.md
+MERGED.md
+MERGER_TASK.md
+TASK.md
+CONSENSUS.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# IDE/Editor
+.claude/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.venv/
+venv/
