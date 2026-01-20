@@ -15,6 +15,7 @@ Example:
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from typing import Callable
 
@@ -22,16 +23,26 @@ from typing import Callable
 Number = float
 
 # Type alias for operation functions
-Operation = Callable[[Number, Number], Number]
+Operation = Callable[..., Number]
 
 # Operations registry for CLI dispatch
 OPERATIONS: dict[str, Operation] = {}
 
+# Set of operation names that are unary (single-argument)
+UNARY_OPS: set[str] = set()
 
-def register_operation(name: str) -> Callable[[Operation], Operation]:
-    """Decorator to register an operation in the operations registry."""
+
+def register_operation(name: str, unary: bool = False) -> Callable[[Operation], Operation]:
+    """Decorator to register an operation in the operations registry.
+
+    Args:
+        name: The operation name for CLI dispatch.
+        unary: If True, marks this as a single-argument operation.
+    """
     def decorator(func: Operation) -> Operation:
         OPERATIONS[name] = func
+        if unary:
+            UNARY_OPS.add(name)
         return func
     return decorator
 
@@ -130,6 +141,29 @@ def power(base: Number, exponent: Number) -> Number:
     return base ** exponent
 
 
+@register_operation("sqrt", unary=True)
+def sqrt(n: Number) -> Number:
+    """Compute the square root of a number.
+
+    Args:
+        n: The number to compute the square root of.
+
+    Returns:
+        The square root of n.
+
+    Raises:
+        ValueError: If n is negative.
+    """
+    if n < 0:
+        raise ValueError("Cannot compute square root of negative number")
+    return math.sqrt(n)
+
+
+def get_all_operations() -> list[str]:
+    """Get all available operation names."""
+    return list(OPERATIONS.keys())
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 
@@ -144,7 +178,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "operation",
-        choices=list(OPERATIONS.keys()),
+        choices=get_all_operations(),
         help="The arithmetic operation to perform",
     )
 
@@ -157,19 +191,21 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "num2",
         type=str,
-        help="Second number",
+        nargs="?",
+        default=None,
+        help="Second number (required for binary operations)",
     )
 
     return parser
 
 
-def run_calculation(operation: str, num1: str, num2: str) -> Number:
+def run_calculation(operation: str, num1: str, num2: str | None = None) -> Number:
     """Run a calculation with the specified operation and operands.
 
     Args:
         operation: Name of the operation to perform.
         num1: First operand as string.
-        num2: Second operand as string.
+        num2: Second operand as string (optional for unary operations).
 
     Returns:
         Result of the calculation.
@@ -178,8 +214,17 @@ def run_calculation(operation: str, num1: str, num2: str) -> Number:
         ValueError: If operation is unknown or inputs are invalid.
     """
     if operation not in OPERATIONS:
-        valid_ops = ", ".join(OPERATIONS.keys())
+        valid_ops = ", ".join(get_all_operations())
         raise ValueError(f"Unknown operation: '{operation}'. Valid operations: {valid_ops}")
+
+    # Check if it's a unary operation
+    if operation in UNARY_OPS:
+        a = validate_number(num1, "number")
+        return OPERATIONS[operation](a)
+
+    # It's a binary operation
+    if num2 is None:
+        raise ValueError(f"Operation '{operation}' requires two numbers")
 
     a = validate_number(num1, "first number")
     b = validate_number(num2, "second number")
