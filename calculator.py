@@ -130,6 +130,24 @@ def power(base: Number, exponent: Number) -> Number:
     return base ** exponent
 
 
+def ping() -> str:
+    """Return 'pong' - a simple ping-pong communication test.
+
+    Returns:
+        The string 'pong'.
+    """
+    return "pong"
+
+
+def pong() -> str:
+    """Return 'ping' - the counterpart to ping().
+
+    Returns:
+        The string 'ping'.
+    """
+    return "ping"
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 
