@@ -15,6 +15,7 @@ Example:
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from typing import Callable
 
@@ -130,6 +131,27 @@ def power(base: Number, exponent: Number) -> Number:
     return base ** exponent
 
 
+class _PingResponse:
+    """Unique sentinel for ping response that cannot be confused with numeric results."""
+    pass
+
+
+PING_RESPONSE = _PingResponse()
+
+
+def ping(a: Number, b: Number) -> _PingResponse:
+    """Return a ping response.
+
+    Args:
+        a: Ignored.
+        b: Ignored.
+
+    Returns:
+        Special sentinel indicating ping response.
+    """
+    return PING_RESPONSE
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 
@@ -144,7 +166,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "operation",
-        choices=list(OPERATIONS.keys()),
+        choices=list(OPERATIONS.keys()) + ["ping"],
         help="The arithmetic operation to perform",
     )
 
@@ -163,7 +185,7 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def run_calculation(operation: str, num1: str, num2: str) -> Number:
+def run_calculation(operation: str, num1: str, num2: str) -> Number | _PingResponse:
     """Run a calculation with the specified operation and operands.
 
     Args:
@@ -172,11 +194,14 @@ def run_calculation(operation: str, num1: str, num2: str) -> Number:
         num2: Second operand as string.
 
     Returns:
-        Result of the calculation.
+        Result of the calculation, or PING_RESPONSE for ping.
 
     Raises:
         ValueError: If operation is unknown or inputs are invalid.
     """
+    if operation == "ping":
+        return PING_RESPONSE
+
     if operation not in OPERATIONS:
         valid_ops = ", ".join(OPERATIONS.keys())
         raise ValueError(f"Unknown operation: '{operation}'. Valid operations: {valid_ops}")
@@ -187,7 +212,7 @@ def run_calculation(operation: str, num1: str, num2: str) -> Number:
     return OPERATIONS[operation](a, b)
 
 
-def format_result(result: Number) -> str:
+def format_result(result: Number | _PingResponse) -> str:
     """Format the result for display.
 
     Args:
@@ -196,6 +221,12 @@ def format_result(result: Number) -> str:
     Returns:
         Formatted string representation of the result.
     """
+    # Handle ping response
+    if isinstance(result, _PingResponse):
+        return "pong"
+    # Handle infinity and NaN
+    if math.isinf(result) or math.isnan(result):
+        return str(result)
     # Display as integer if the result is a whole number
     if result == int(result):
         return str(int(result))
