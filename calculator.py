@@ -130,6 +130,25 @@ def power(base: Number, exponent: Number) -> Number:
     return base ** exponent
 
 
+@register_operation("modulo")
+def modulo(a: Number, b: Number) -> Number:
+    """Compute the remainder of a divided by b.
+
+    Args:
+        a: The dividend.
+        b: The divisor.
+
+    Returns:
+        The remainder of a divided by b.
+
+    Raises:
+        ValueError: If b is zero.
+    """
+    if b == 0:
+        raise ValueError("Cannot compute modulo with divisor zero")
+    return a % b
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 
