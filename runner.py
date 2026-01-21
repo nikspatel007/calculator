@@ -32,18 +32,24 @@ OPERATIONS: dict[str, Operation] = {}
 # Track which operations are unary (single argument)
 UNARY_OPERATIONS: set[str] = set()
 
+# Track which operations take a list of arguments
+LIST_OPERATIONS: set[str] = set()
 
-def register_operation(name: str, unary: bool = False) -> Callable[[Operation], Operation]:
+
+def register_operation(name: str, unary: bool = False, list_op: bool = False) -> Callable[[Operation], Operation]:
     """Decorator to register an operation in the operations registry.
 
     Args:
         name: The name of the operation.
         unary: If True, marks this as a single-argument operation.
+        list_op: If True, marks this as a list operation (takes multiple values).
     """
     def decorator(func: Operation) -> Operation:
         OPERATIONS[name] = func
         if unary:
             UNARY_OPERATIONS.add(name)
+        if list_op:
+            LIST_OPERATIONS.add(name)
         return func
     return decorator
 
@@ -219,6 +225,47 @@ def log(a: Number, base: Number) -> Number:
     return math.log(a, base)
 
 
+@register_operation("mean", list_op=True)
+def mean(values: list[Number]) -> Number:
+    """Compute the arithmetic mean of a list of numbers.
+
+    Args:
+        values: A list of numbers.
+
+    Returns:
+        The arithmetic mean of the values.
+
+    Raises:
+        ValueError: If the list is empty.
+    """
+    if not values:
+        raise ValueError("Cannot compute mean of empty list")
+    return sum(values) / len(values)
+
+
+@register_operation("median", list_op=True)
+def median(values: list[Number]) -> Number:
+    """Compute the median of a list of numbers.
+
+    Args:
+        values: A list of numbers.
+
+    Returns:
+        The median value. For even-length lists, returns the average of the two middle values.
+
+    Raises:
+        ValueError: If the list is empty.
+    """
+    if not values:
+        raise ValueError("Cannot compute median of empty list")
+    sorted_values = sorted(values)
+    n = len(sorted_values)
+    mid = n // 2
+    if n % 2 == 0:
+        return (sorted_values[mid - 1] + sorted_values[mid]) / 2
+    return sorted_values[mid]
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 
@@ -238,29 +285,23 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "num1",
+        "numbers",
         type=str,
-        help="First number",
-    )
-
-    parser.add_argument(
-        "num2",
-        type=str,
-        nargs="?",
-        default=None,
-        help="Second number (not required for unary operations like sqrt)",
+        nargs="*",
+        help="Numbers for the operation (1 for unary, 2 for binary, multiple for list operations)",
     )
 
     return parser
 
 
-def run_calculation(operation: str, num1: str, num2: str | None = None) -> Number:
+def run_calculation(operation: str, num1: str, num2: str | None = None, numbers: list[str] | None = None) -> Number:
     """Run a calculation with the specified operation and operands.
 
     Args:
         operation: Name of the operation to perform.
-        num1: First operand as string.
+        num1: First operand as string (for backward compatibility).
         num2: Second operand as string (optional for unary operations).
+        numbers: List of number strings (for list operations like mean, median).
 
     Returns:
         Result of the calculation.
@@ -271,6 +312,17 @@ def run_calculation(operation: str, num1: str, num2: str | None = None) -> Numbe
     if operation not in OPERATIONS:
         valid_ops = ", ".join(OPERATIONS.keys())
         raise ValueError(f"Unknown operation: '{operation}'. Valid operations: {valid_ops}")
+
+    # Handle list operations
+    if operation in LIST_OPERATIONS:
+        if numbers is not None:
+            values = [validate_number(n, f"number {i+1}") for i, n in enumerate(numbers)]
+        else:
+            # Build values from num1 and num2 for backward compatibility
+            values = [validate_number(num1, "first number")]
+            if num2 is not None:
+                values.append(validate_number(num2, "second number"))
+        return OPERATIONS[operation](values)
 
     a = validate_number(num1, "first number")
 
@@ -314,7 +366,21 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        result = run_calculation(args.operation, args.num1, args.num2)
+        numbers = args.numbers
+        if args.operation in LIST_OPERATIONS:
+            result = run_calculation(args.operation, "", None, numbers=numbers)
+        elif args.operation in UNARY_OPERATIONS:
+            if len(numbers) < 1:
+                raise ValueError(f"Operation '{args.operation}' requires one argument")
+            if len(numbers) > 1:
+                raise ValueError(f"Operation '{args.operation}' takes only one argument")
+            result = run_calculation(args.operation, numbers[0], None)
+        else:
+            if len(numbers) < 2:
+                raise ValueError(f"Operation '{args.operation}' requires two arguments")
+            if len(numbers) > 2:
+                raise ValueError(f"Operation '{args.operation}' takes only two arguments")
+            result = run_calculation(args.operation, numbers[0], numbers[1])
         print(format_result(result))
         return 0
     except ValueError as e:

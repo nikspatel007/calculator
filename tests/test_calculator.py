@@ -16,6 +16,8 @@ from runner import (
     ln,
     log10,
     log,
+    mean,
+    median,
     validate_number,
     run_calculation,
     format_result,
@@ -23,6 +25,7 @@ from runner import (
     create_parser,
     OPERATIONS,
     UNARY_OPERATIONS,
+    LIST_OPERATIONS,
 )
 
 
@@ -238,6 +241,67 @@ class TestLog:
         assert log(2, 4) == pytest.approx(0.5)
 
 
+class TestMean:
+    """Tests for the mean function."""
+
+    def test_mean_single_value(self):
+        assert mean([5]) == 5
+
+    def test_mean_two_values(self):
+        assert mean([2, 4]) == 3
+
+    def test_mean_multiple_values(self):
+        assert mean([1, 2, 3, 4, 5]) == 3
+
+    def test_mean_negative_values(self):
+        assert mean([-2, -4, -6]) == -4
+
+    def test_mean_mixed_values(self):
+        assert mean([-5, 5]) == 0
+
+    def test_mean_floats(self):
+        assert mean([1.5, 2.5, 3.0]) == pytest.approx(2.3333333333)
+
+    def test_mean_empty_list_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute mean of empty list"):
+            mean([])
+
+
+class TestMedian:
+    """Tests for the median function."""
+
+    def test_median_single_value(self):
+        assert median([5]) == 5
+
+    def test_median_odd_count(self):
+        assert median([1, 3, 5]) == 3
+
+    def test_median_even_count(self):
+        assert median([1, 2, 3, 4]) == 2.5
+
+    def test_median_unsorted_input(self):
+        assert median([5, 1, 3]) == 3
+
+    def test_median_two_values(self):
+        assert median([1, 3]) == 2
+
+    def test_median_negative_values(self):
+        assert median([-5, -3, -1]) == -3
+
+    def test_median_mixed_values(self):
+        assert median([-10, 0, 10]) == 0
+
+    def test_median_floats(self):
+        assert median([1.5, 2.5, 3.5]) == 2.5
+
+    def test_median_even_count_floats(self):
+        assert median([1.0, 2.0, 3.0, 4.0]) == 2.5
+
+    def test_median_empty_list_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute median of empty list"):
+            median([])
+
+
 class TestValidateNumber:
     """Tests for the validate_number function."""
 
@@ -317,6 +381,26 @@ class TestRunCalculation:
         with pytest.raises(ValueError, match="Logarithm base cannot be 1"):
             run_calculation("log", "8", "1")
 
+    def test_run_mean_with_numbers(self):
+        assert run_calculation("mean", "", None, numbers=["1", "2", "3", "4", "5"]) == 3
+
+    def test_run_mean_single_value(self):
+        assert run_calculation("mean", "", None, numbers=["5"]) == 5
+
+    def test_run_mean_empty_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute mean of empty list"):
+            run_calculation("mean", "", None, numbers=[])
+
+    def test_run_median_with_numbers(self):
+        assert run_calculation("median", "", None, numbers=["1", "2", "3"]) == 2
+
+    def test_run_median_even_count(self):
+        assert run_calculation("median", "", None, numbers=["1", "2", "3", "4"]) == 2.5
+
+    def test_run_median_empty_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute median of empty list"):
+            run_calculation("median", "", None, numbers=[])
+
 
 class TestFormatResult:
     """Tests for the format_result function."""
@@ -345,15 +429,19 @@ class TestCreateParser:
         parser = create_parser()
         args = parser.parse_args(["add", "5", "3"])
         assert args.operation == "add"
-        assert args.num1 == "5"
-        assert args.num2 == "3"
+        assert args.numbers == ["5", "3"]
 
     def test_parser_accepts_unary_operation(self):
         parser = create_parser()
         args = parser.parse_args(["sqrt", "16"])
         assert args.operation == "sqrt"
-        assert args.num1 == "16"
-        assert args.num2 is None
+        assert args.numbers == ["16"]
+
+    def test_parser_accepts_list_operation(self):
+        parser = create_parser()
+        args = parser.parse_args(["mean", "1", "2", "3", "4", "5"])
+        assert args.operation == "mean"
+        assert args.numbers == ["1", "2", "3", "4", "5"]
 
 
 class TestMain:
@@ -461,12 +549,84 @@ class TestMain:
         assert exit_code == 1
         assert "cannot be 1" in captured.err
 
+    def test_main_mean(self, capsys):
+        exit_code = main(["mean", "1", "2", "3", "4", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "3"
+
+    def test_main_mean_float_result(self, capsys):
+        exit_code = main(["mean", "1", "2", "3"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "2"
+
+    def test_main_mean_single_value(self, capsys):
+        exit_code = main(["mean", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "5"
+
+    def test_main_mean_empty_error(self, capsys):
+        exit_code = main(["mean"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "empty list" in captured.err
+
+    def test_main_median_odd(self, capsys):
+        exit_code = main(["median", "1", "2", "3"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "2"
+
+    def test_main_median_even(self, capsys):
+        exit_code = main(["median", "1", "2", "3", "4"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "2.5"
+
+    def test_main_median_unsorted(self, capsys):
+        exit_code = main(["median", "5", "1", "3"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "3"
+
+    def test_main_median_single_value(self, capsys):
+        exit_code = main(["median", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "5"
+
+    def test_main_median_empty_error(self, capsys):
+        exit_code = main(["median"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "empty list" in captured.err
+
+    def test_main_binary_missing_arg_error(self, capsys):
+        exit_code = main(["add", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "requires two arguments" in captured.err
+
+    def test_main_binary_extra_arg_error(self, capsys):
+        exit_code = main(["add", "5", "3", "2"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "takes only two arguments" in captured.err
+
+    def test_main_unary_missing_arg_error(self, capsys):
+        exit_code = main(["sqrt"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "requires one argument" in captured.err
+
 
 class TestOperationsRegistry:
     """Tests for the operations registry."""
 
     def test_all_operations_registered(self):
-        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log", "mean", "median"}
         assert set(OPERATIONS.keys()) == expected_ops
 
     def test_sqrt_is_unary(self):
@@ -483,4 +643,14 @@ class TestOperationsRegistry:
 
     def test_binary_ops_not_in_unary(self):
         for op in ["add", "subtract", "multiply", "divide", "power", "log"]:
+            assert op not in UNARY_OPERATIONS
+
+    def test_mean_is_list_operation(self):
+        assert "mean" in LIST_OPERATIONS
+
+    def test_median_is_list_operation(self):
+        assert "median" in LIST_OPERATIONS
+
+    def test_list_ops_not_in_unary(self):
+        for op in ["mean", "median"]:
             assert op not in UNARY_OPERATIONS
