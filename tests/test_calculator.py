@@ -16,6 +16,12 @@ from runner import (
     ln,
     log10,
     log,
+    sin,
+    cos,
+    tan,
+    sind,
+    cosd,
+    tand,
     mean,
     median,
     variance,
@@ -241,6 +247,141 @@ class TestLog:
 
     def test_log_fractional_result(self):
         assert log(2, 4) == pytest.approx(0.5)
+
+
+class TestSin:
+    """Tests for the sin function (radians)."""
+
+    def test_sin_of_zero(self):
+        assert sin(0) == 0
+
+    def test_sin_of_pi_over_2(self):
+        assert sin(math.pi / 2) == pytest.approx(1.0)
+
+    def test_sin_of_pi(self):
+        assert sin(math.pi) == pytest.approx(0.0, abs=1e-10)
+
+    def test_sin_of_pi_over_6(self):
+        assert sin(math.pi / 6) == pytest.approx(0.5)
+
+    def test_sin_of_negative_pi_over_2(self):
+        assert sin(-math.pi / 2) == pytest.approx(-1.0)
+
+
+class TestCos:
+    """Tests for the cos function (radians)."""
+
+    def test_cos_of_zero(self):
+        assert cos(0) == 1
+
+    def test_cos_of_pi_over_2(self):
+        assert cos(math.pi / 2) == pytest.approx(0.0, abs=1e-10)
+
+    def test_cos_of_pi(self):
+        assert cos(math.pi) == pytest.approx(-1.0)
+
+    def test_cos_of_pi_over_3(self):
+        assert cos(math.pi / 3) == pytest.approx(0.5)
+
+    def test_cos_of_negative_pi(self):
+        assert cos(-math.pi) == pytest.approx(-1.0)
+
+
+class TestTan:
+    """Tests for the tan function (radians)."""
+
+    def test_tan_of_zero(self):
+        assert tan(0) == 0
+
+    def test_tan_of_pi_over_4(self):
+        assert tan(math.pi / 4) == pytest.approx(1.0)
+
+    def test_tan_of_pi(self):
+        assert tan(math.pi) == pytest.approx(0.0, abs=1e-10)
+
+    def test_tan_of_negative_pi_over_4(self):
+        assert tan(-math.pi / 4) == pytest.approx(-1.0)
+
+    def test_tan_of_pi_over_2_raises_error(self):
+        with pytest.raises(ValueError, match="Tangent undefined"):
+            tan(math.pi / 2)
+
+    def test_tan_of_3pi_over_2_raises_error(self):
+        with pytest.raises(ValueError, match="Tangent undefined"):
+            tan(3 * math.pi / 2)
+
+
+class TestSind:
+    """Tests for the sind function (degrees)."""
+
+    def test_sind_of_zero(self):
+        assert sind(0) == 0
+
+    def test_sind_of_30(self):
+        assert sind(30) == pytest.approx(0.5)
+
+    def test_sind_of_90(self):
+        assert sind(90) == pytest.approx(1.0)
+
+    def test_sind_of_180(self):
+        assert sind(180) == pytest.approx(0.0, abs=1e-10)
+
+    def test_sind_of_270(self):
+        assert sind(270) == pytest.approx(-1.0)
+
+    def test_sind_of_negative_90(self):
+        assert sind(-90) == pytest.approx(-1.0)
+
+
+class TestCosd:
+    """Tests for the cosd function (degrees)."""
+
+    def test_cosd_of_zero(self):
+        assert cosd(0) == 1
+
+    def test_cosd_of_60(self):
+        assert cosd(60) == pytest.approx(0.5)
+
+    def test_cosd_of_90(self):
+        assert cosd(90) == pytest.approx(0.0, abs=1e-10)
+
+    def test_cosd_of_180(self):
+        assert cosd(180) == pytest.approx(-1.0)
+
+    def test_cosd_of_360(self):
+        assert cosd(360) == pytest.approx(1.0)
+
+    def test_cosd_of_negative_60(self):
+        assert cosd(-60) == pytest.approx(0.5)
+
+
+class TestTand:
+    """Tests for the tand function (degrees)."""
+
+    def test_tand_of_zero(self):
+        assert tand(0) == 0
+
+    def test_tand_of_45(self):
+        assert tand(45) == pytest.approx(1.0)
+
+    def test_tand_of_180(self):
+        assert tand(180) == pytest.approx(0.0, abs=1e-10)
+
+    def test_tand_of_negative_45(self):
+        assert tand(-45) == pytest.approx(-1.0)
+
+    def test_tand_of_90_raises_error(self):
+        with pytest.raises(ValueError, match="Tangent undefined"):
+            tand(90)
+
+    def test_tand_of_270_raises_error(self):
+        with pytest.raises(ValueError, match="Tangent undefined"):
+            tand(270)
+
+    def test_tand_of_450_raises_error(self):
+        # 450 degrees = 90 degrees (modulo 360)
+        with pytest.raises(ValueError, match="Tangent undefined"):
+            tand(450)
 
 
 class TestMean:
@@ -495,6 +636,50 @@ class TestRunCalculation:
     def test_run_stdev_empty_raises_error(self):
         with pytest.raises(ValueError, match="Cannot compute standard deviation of empty list"):
             run_calculation("stdev", "", None, numbers=[])
+
+    def test_run_sin(self):
+        assert run_calculation("sin", "0") == 0
+
+    def test_run_sin_pi_over_2(self):
+        assert run_calculation("sin", str(math.pi / 2)) == pytest.approx(1.0)
+
+    def test_run_cos(self):
+        assert run_calculation("cos", "0") == 1
+
+    def test_run_cos_pi(self):
+        assert run_calculation("cos", str(math.pi)) == pytest.approx(-1.0)
+
+    def test_run_tan(self):
+        assert run_calculation("tan", "0") == 0
+
+    def test_run_tan_pi_over_4(self):
+        assert run_calculation("tan", str(math.pi / 4)) == pytest.approx(1.0)
+
+    def test_run_tan_pi_over_2_raises_error(self):
+        with pytest.raises(ValueError, match="Tangent undefined"):
+            run_calculation("tan", str(math.pi / 2))
+
+    def test_run_sind(self):
+        assert run_calculation("sind", "0") == 0
+
+    def test_run_sind_90(self):
+        assert run_calculation("sind", "90") == pytest.approx(1.0)
+
+    def test_run_cosd(self):
+        assert run_calculation("cosd", "0") == 1
+
+    def test_run_cosd_90(self):
+        assert run_calculation("cosd", "90") == pytest.approx(0.0, abs=1e-10)
+
+    def test_run_tand(self):
+        assert run_calculation("tand", "0") == 0
+
+    def test_run_tand_45(self):
+        assert run_calculation("tand", "45") == pytest.approx(1.0)
+
+    def test_run_tand_90_raises_error(self):
+        with pytest.raises(ValueError, match="Tangent undefined"):
+            run_calculation("tand", "90")
 
 
 class TestFormatResult:
@@ -764,12 +949,109 @@ class TestMain:
         assert exit_code == 1
         assert "requires one argument" in captured.err
 
+    def test_main_sin_zero(self, capsys):
+        exit_code = main(["sin", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0"
+
+    def test_main_sin_pi_over_2(self, capsys):
+        exit_code = main(["sin", "1.5708"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert float(captured.out.strip()) == pytest.approx(1.0, abs=0.001)
+
+    def test_main_cos_zero(self, capsys):
+        exit_code = main(["cos", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "1"
+
+    def test_main_cos_pi(self, capsys):
+        exit_code = main(["cos", str(math.pi)])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert float(captured.out.strip()) == pytest.approx(-1.0)
+
+    def test_main_tan_zero(self, capsys):
+        exit_code = main(["tan", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0"
+
+    def test_main_tan_pi_over_4(self, capsys):
+        exit_code = main(["tan", "0.7854"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert float(captured.out.strip()) == pytest.approx(1.0, abs=0.001)
+
+    def test_main_tan_pi_over_2_error(self, capsys):
+        exit_code = main(["tan", str(math.pi / 2)])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "Tangent undefined" in captured.err
+
+    def test_main_sind_zero(self, capsys):
+        exit_code = main(["sind", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0"
+
+    def test_main_sind_30(self, capsys):
+        exit_code = main(["sind", "30"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert float(captured.out.strip()) == pytest.approx(0.5)
+
+    def test_main_sind_90(self, capsys):
+        exit_code = main(["sind", "90"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert float(captured.out.strip()) == pytest.approx(1.0)
+
+    def test_main_cosd_zero(self, capsys):
+        exit_code = main(["cosd", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "1"
+
+    def test_main_cosd_60(self, capsys):
+        exit_code = main(["cosd", "60"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert float(captured.out.strip()) == pytest.approx(0.5)
+
+    def test_main_cosd_90(self, capsys):
+        exit_code = main(["cosd", "90"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        # Should be very close to 0
+        assert abs(float(captured.out.strip())) < 1e-9
+
+    def test_main_tand_zero(self, capsys):
+        exit_code = main(["tand", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0"
+
+    def test_main_tand_45(self, capsys):
+        exit_code = main(["tand", "45"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert float(captured.out.strip()) == pytest.approx(1.0)
+
+    def test_main_tand_90_error(self, capsys):
+        exit_code = main(["tand", "90"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "Tangent undefined" in captured.err
+
 
 class TestOperationsRegistry:
     """Tests for the operations registry."""
 
     def test_all_operations_registered(self):
-        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log", "mean", "median", "variance", "stdev"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "mean", "median", "variance", "stdev"}
         assert set(OPERATIONS.keys()) == expected_ops
 
     def test_sqrt_is_unary(self):
@@ -780,6 +1062,24 @@ class TestOperationsRegistry:
 
     def test_log10_is_unary(self):
         assert "log10" in UNARY_OPERATIONS
+
+    def test_sin_is_unary(self):
+        assert "sin" in UNARY_OPERATIONS
+
+    def test_cos_is_unary(self):
+        assert "cos" in UNARY_OPERATIONS
+
+    def test_tan_is_unary(self):
+        assert "tan" in UNARY_OPERATIONS
+
+    def test_sind_is_unary(self):
+        assert "sind" in UNARY_OPERATIONS
+
+    def test_cosd_is_unary(self):
+        assert "cosd" in UNARY_OPERATIONS
+
+    def test_tand_is_unary(self):
+        assert "tand" in UNARY_OPERATIONS
 
     def test_log_is_binary(self):
         assert "log" not in UNARY_OPERATIONS

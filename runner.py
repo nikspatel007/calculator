@@ -225,6 +225,98 @@ def log(a: Number, base: Number) -> Number:
     return math.log(a, base)
 
 
+@register_operation("sin", unary=True)
+def sin(a: Number) -> Number:
+    """Compute the sine of an angle in radians.
+
+    Args:
+        a: The angle in radians.
+
+    Returns:
+        The sine of the angle.
+    """
+    return math.sin(a)
+
+
+@register_operation("cos", unary=True)
+def cos(a: Number) -> Number:
+    """Compute the cosine of an angle in radians.
+
+    Args:
+        a: The angle in radians.
+
+    Returns:
+        The cosine of the angle.
+    """
+    return math.cos(a)
+
+
+@register_operation("tan", unary=True)
+def tan(a: Number) -> Number:
+    """Compute the tangent of an angle in radians.
+
+    Args:
+        a: The angle in radians.
+
+    Returns:
+        The tangent of the angle.
+
+    Raises:
+        ValueError: If the tangent is undefined (at odd multiples of pi/2).
+    """
+    # Check if cos(a) is essentially zero (tangent undefined)
+    cos_val = math.cos(a)
+    if abs(cos_val) < 1e-10:
+        raise ValueError("Tangent undefined at this angle (cos(x) = 0)")
+    return math.tan(a)
+
+
+@register_operation("sind", unary=True)
+def sind(a: Number) -> Number:
+    """Compute the sine of an angle in degrees.
+
+    Args:
+        a: The angle in degrees.
+
+    Returns:
+        The sine of the angle.
+    """
+    return math.sin(math.radians(a))
+
+
+@register_operation("cosd", unary=True)
+def cosd(a: Number) -> Number:
+    """Compute the cosine of an angle in degrees.
+
+    Args:
+        a: The angle in degrees.
+
+    Returns:
+        The cosine of the angle.
+    """
+    return math.cos(math.radians(a))
+
+
+@register_operation("tand", unary=True)
+def tand(a: Number) -> Number:
+    """Compute the tangent of an angle in degrees.
+
+    Args:
+        a: The angle in degrees.
+
+    Returns:
+        The tangent of the angle.
+
+    Raises:
+        ValueError: If the tangent is undefined (at 90, 270, etc. degrees).
+    """
+    # Check if the angle is at an odd multiple of 90 degrees
+    normalized = a % 360
+    if abs(normalized - 90) < 1e-10 or abs(normalized - 270) < 1e-10:
+        raise ValueError("Tangent undefined at this angle (90 or 270 degrees)")
+    return math.tan(math.radians(a))
+
+
 @register_operation("mean", list_op=True)
 def mean(values: list[Number]) -> Number:
     """Compute the arithmetic mean of a list of numbers.
