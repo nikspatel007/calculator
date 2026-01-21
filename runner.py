@@ -266,6 +266,43 @@ def median(values: list[Number]) -> Number:
     return sorted_values[mid]
 
 
+@register_operation("variance", list_op=True)
+def variance(values: list[Number]) -> Number:
+    """Compute the population variance of a list of numbers.
+
+    Args:
+        values: A list of numbers.
+
+    Returns:
+        The population variance of the values.
+
+    Raises:
+        ValueError: If the list is empty.
+    """
+    if not values:
+        raise ValueError("Cannot compute variance of empty list")
+    avg = sum(values) / len(values)
+    return sum((x - avg) ** 2 for x in values) / len(values)
+
+
+@register_operation("stdev", list_op=True)
+def stdev(values: list[Number]) -> Number:
+    """Compute the population standard deviation of a list of numbers.
+
+    Args:
+        values: A list of numbers.
+
+    Returns:
+        The population standard deviation of the values.
+
+    Raises:
+        ValueError: If the list is empty.
+    """
+    if not values:
+        raise ValueError("Cannot compute standard deviation of empty list")
+    return math.sqrt(variance(values))
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 

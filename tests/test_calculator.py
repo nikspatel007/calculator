@@ -18,6 +18,8 @@ from runner import (
     log,
     mean,
     median,
+    variance,
+    stdev,
     validate_number,
     run_calculation,
     format_result,
@@ -302,6 +304,79 @@ class TestMedian:
             median([])
 
 
+class TestVariance:
+    """Tests for the variance function."""
+
+    def test_variance_single_value(self):
+        assert variance([5]) == 0
+
+    def test_variance_identical_values(self):
+        assert variance([3, 3, 3, 3]) == 0
+
+    def test_variance_simple_values(self):
+        # Values: [1, 3], mean = 2, variance = ((1-2)^2 + (3-2)^2) / 2 = (1 + 1) / 2 = 1
+        assert variance([1, 3]) == 1
+
+    def test_variance_multiple_values(self):
+        # Values: [2, 4, 4, 4, 5, 5, 7, 9], mean = 5
+        # variance = ((2-5)^2 + (4-5)^2 + (4-5)^2 + (4-5)^2 + (5-5)^2 + (5-5)^2 + (7-5)^2 + (9-5)^2) / 8
+        # = (9 + 1 + 1 + 1 + 0 + 0 + 4 + 16) / 8 = 32 / 8 = 4
+        assert variance([2, 4, 4, 4, 5, 5, 7, 9]) == 4
+
+    def test_variance_negative_values(self):
+        # Values: [-2, -4, -6], mean = -4
+        # variance = ((-2-(-4))^2 + (-4-(-4))^2 + (-6-(-4))^2) / 3 = (4 + 0 + 4) / 3 = 8/3
+        assert variance([-2, -4, -6]) == pytest.approx(8 / 3)
+
+    def test_variance_mixed_values(self):
+        # Values: [-5, 5], mean = 0
+        # variance = (25 + 25) / 2 = 25
+        assert variance([-5, 5]) == 25
+
+    def test_variance_floats(self):
+        # Values: [1.5, 2.5, 3.5], mean = 2.5
+        # variance = ((1.5-2.5)^2 + (2.5-2.5)^2 + (3.5-2.5)^2) / 3 = (1 + 0 + 1) / 3 = 2/3
+        assert variance([1.5, 2.5, 3.5]) == pytest.approx(2 / 3)
+
+    def test_variance_empty_list_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute variance of empty list"):
+            variance([])
+
+
+class TestStdev:
+    """Tests for the stdev function."""
+
+    def test_stdev_single_value(self):
+        assert stdev([5]) == 0
+
+    def test_stdev_identical_values(self):
+        assert stdev([3, 3, 3, 3]) == 0
+
+    def test_stdev_simple_values(self):
+        # Values: [1, 3], variance = 1, stdev = 1
+        assert stdev([1, 3]) == 1
+
+    def test_stdev_multiple_values(self):
+        # Values: [2, 4, 4, 4, 5, 5, 7, 9], variance = 4, stdev = 2
+        assert stdev([2, 4, 4, 4, 5, 5, 7, 9]) == 2
+
+    def test_stdev_negative_values(self):
+        # variance = 8/3, stdev = sqrt(8/3)
+        assert stdev([-2, -4, -6]) == pytest.approx(math.sqrt(8 / 3))
+
+    def test_stdev_mixed_values(self):
+        # variance = 25, stdev = 5
+        assert stdev([-5, 5]) == 5
+
+    def test_stdev_floats(self):
+        # variance = 2/3, stdev = sqrt(2/3)
+        assert stdev([1.5, 2.5, 3.5]) == pytest.approx(math.sqrt(2 / 3))
+
+    def test_stdev_empty_list_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute standard deviation of empty list"):
+            stdev([])
+
+
 class TestValidateNumber:
     """Tests for the validate_number function."""
 
@@ -400,6 +475,26 @@ class TestRunCalculation:
     def test_run_median_empty_raises_error(self):
         with pytest.raises(ValueError, match="Cannot compute median of empty list"):
             run_calculation("median", "", None, numbers=[])
+
+    def test_run_variance_with_numbers(self):
+        assert run_calculation("variance", "", None, numbers=["2", "4", "4", "4", "5", "5", "7", "9"]) == 4
+
+    def test_run_variance_single_value(self):
+        assert run_calculation("variance", "", None, numbers=["5"]) == 0
+
+    def test_run_variance_empty_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute variance of empty list"):
+            run_calculation("variance", "", None, numbers=[])
+
+    def test_run_stdev_with_numbers(self):
+        assert run_calculation("stdev", "", None, numbers=["2", "4", "4", "4", "5", "5", "7", "9"]) == 2
+
+    def test_run_stdev_single_value(self):
+        assert run_calculation("stdev", "", None, numbers=["5"]) == 0
+
+    def test_run_stdev_empty_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute standard deviation of empty list"):
+            run_calculation("stdev", "", None, numbers=[])
 
 
 class TestFormatResult:
@@ -603,6 +698,54 @@ class TestMain:
         assert exit_code == 1
         assert "empty list" in captured.err
 
+    def test_main_variance(self, capsys):
+        exit_code = main(["variance", "2", "4", "4", "4", "5", "5", "7", "9"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "4"
+
+    def test_main_variance_single_value(self, capsys):
+        exit_code = main(["variance", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0"
+
+    def test_main_variance_float_result(self, capsys):
+        exit_code = main(["variance", "1", "3"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "1"
+
+    def test_main_variance_empty_error(self, capsys):
+        exit_code = main(["variance"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "empty list" in captured.err
+
+    def test_main_stdev(self, capsys):
+        exit_code = main(["stdev", "2", "4", "4", "4", "5", "5", "7", "9"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "2"
+
+    def test_main_stdev_single_value(self, capsys):
+        exit_code = main(["stdev", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0"
+
+    def test_main_stdev_float_result(self, capsys):
+        exit_code = main(["stdev", "-5", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "5"
+
+    def test_main_stdev_empty_error(self, capsys):
+        exit_code = main(["stdev"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "empty list" in captured.err
+
     def test_main_binary_missing_arg_error(self, capsys):
         exit_code = main(["add", "5"])
         captured = capsys.readouterr()
@@ -626,7 +769,7 @@ class TestOperationsRegistry:
     """Tests for the operations registry."""
 
     def test_all_operations_registered(self):
-        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log", "mean", "median"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log", "mean", "median", "variance", "stdev"}
         assert set(OPERATIONS.keys()) == expected_ops
 
     def test_sqrt_is_unary(self):
@@ -651,6 +794,12 @@ class TestOperationsRegistry:
     def test_median_is_list_operation(self):
         assert "median" in LIST_OPERATIONS
 
+    def test_variance_is_list_operation(self):
+        assert "variance" in LIST_OPERATIONS
+
+    def test_stdev_is_list_operation(self):
+        assert "stdev" in LIST_OPERATIONS
+
     def test_list_ops_not_in_unary(self):
-        for op in ["mean", "median"]:
+        for op in ["mean", "median", "variance", "stdev"]:
             assert op not in UNARY_OPERATIONS

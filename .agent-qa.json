@@ -1,5 +1,5 @@
 {
-  "workflow_id": "n-median",
+  "workflow_id": "-std-dev",
   "role": "qa",
   "tmux_session": "vermas-dev-qa-process-all-features-in-epic:--4ca8a1",
   "pane": 1
