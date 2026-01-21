@@ -15,6 +15,7 @@ Example:
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from typing import Callable
 
@@ -23,15 +24,26 @@ Number = float
 
 # Type alias for operation functions
 Operation = Callable[[Number, Number], Number]
+UnaryOperation = Callable[[Number], Number]
 
 # Operations registry for CLI dispatch
 OPERATIONS: dict[str, Operation] = {}
 
+# Track which operations are unary (single argument)
+UNARY_OPERATIONS: set[str] = set()
 
-def register_operation(name: str) -> Callable[[Operation], Operation]:
-    """Decorator to register an operation in the operations registry."""
+
+def register_operation(name: str, unary: bool = False) -> Callable[[Operation], Operation]:
+    """Decorator to register an operation in the operations registry.
+
+    Args:
+        name: The name of the operation.
+        unary: If True, marks this as a single-argument operation.
+    """
     def decorator(func: Operation) -> Operation:
         OPERATIONS[name] = func
+        if unary:
+            UNARY_OPERATIONS.add(name)
         return func
     return decorator
 
@@ -130,6 +142,24 @@ def power(base: Number, exponent: Number) -> Number:
     return base ** exponent
 
 
+@register_operation("sqrt", unary=True)
+def sqrt(a: Number) -> Number:
+    """Compute the square root of a number.
+
+    Args:
+        a: The number to compute the square root of.
+
+    Returns:
+        The square root of a.
+
+    Raises:
+        ValueError: If a is negative.
+    """
+    if a < 0:
+        raise ValueError("Cannot compute square root of negative number")
+    return math.sqrt(a)
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 
@@ -157,19 +187,21 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "num2",
         type=str,
-        help="Second number",
+        nargs="?",
+        default=None,
+        help="Second number (not required for unary operations like sqrt)",
     )
 
     return parser
 
 
-def run_calculation(operation: str, num1: str, num2: str) -> Number:
+def run_calculation(operation: str, num1: str, num2: str | None = None) -> Number:
     """Run a calculation with the specified operation and operands.
 
     Args:
         operation: Name of the operation to perform.
         num1: First operand as string.
-        num2: Second operand as string.
+        num2: Second operand as string (optional for unary operations).
 
     Returns:
         Result of the calculation.
@@ -182,8 +214,16 @@ def run_calculation(operation: str, num1: str, num2: str) -> Number:
         raise ValueError(f"Unknown operation: '{operation}'. Valid operations: {valid_ops}")
 
     a = validate_number(num1, "first number")
-    b = validate_number(num2, "second number")
 
+    if operation in UNARY_OPERATIONS:
+        if num2 is not None:
+            raise ValueError(f"Operation '{operation}' takes only one argument")
+        return OPERATIONS[operation](a)
+
+    if num2 is None:
+        raise ValueError(f"Operation '{operation}' requires two arguments")
+
+    b = validate_number(num2, "second number")
     return OPERATIONS[operation](a, b)
 
 
