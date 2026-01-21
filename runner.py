@@ -160,6 +160,65 @@ def sqrt(a: Number) -> Number:
     return math.sqrt(a)
 
 
+@register_operation("ln", unary=True)
+def ln(a: Number) -> Number:
+    """Compute the natural logarithm of a number.
+
+    Args:
+        a: The number to compute the natural log of.
+
+    Returns:
+        The natural logarithm of a.
+
+    Raises:
+        ValueError: If a is not positive.
+    """
+    if a <= 0:
+        raise ValueError("Cannot compute logarithm of non-positive number")
+    return math.log(a)
+
+
+@register_operation("log10", unary=True)
+def log10(a: Number) -> Number:
+    """Compute the base-10 logarithm of a number.
+
+    Args:
+        a: The number to compute the log base 10 of.
+
+    Returns:
+        The base-10 logarithm of a.
+
+    Raises:
+        ValueError: If a is not positive.
+    """
+    if a <= 0:
+        raise ValueError("Cannot compute logarithm of non-positive number")
+    return math.log10(a)
+
+
+@register_operation("log")
+def log(a: Number, base: Number) -> Number:
+    """Compute the logarithm of a number with a custom base.
+
+    Args:
+        a: The number to compute the logarithm of.
+        base: The base of the logarithm.
+
+    Returns:
+        The logarithm of a with the given base.
+
+    Raises:
+        ValueError: If a is not positive, or base is invalid (<=0 or ==1).
+    """
+    if a <= 0:
+        raise ValueError("Cannot compute logarithm of non-positive number")
+    if base <= 0:
+        raise ValueError("Logarithm base must be positive")
+    if base == 1:
+        raise ValueError("Logarithm base cannot be 1")
+    return math.log(a, base)
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 

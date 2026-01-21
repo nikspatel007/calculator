@@ -13,6 +13,9 @@ from runner import (
     divide,
     power,
     sqrt,
+    ln,
+    log10,
+    log,
     validate_number,
     run_calculation,
     format_result,
@@ -142,6 +145,99 @@ class TestSqrt:
         assert sqrt(10000) == 100
 
 
+class TestLn:
+    """Tests for the ln (natural logarithm) function."""
+
+    def test_ln_of_one(self):
+        assert ln(1) == 0
+
+    def test_ln_of_e(self):
+        assert ln(math.e) == pytest.approx(1.0)
+
+    def test_ln_of_e_squared(self):
+        assert ln(math.e ** 2) == pytest.approx(2.0)
+
+    def test_ln_positive_number(self):
+        assert ln(2) == pytest.approx(0.6931471805599453)
+
+    def test_ln_zero_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute logarithm of non-positive number"):
+            ln(0)
+
+    def test_ln_negative_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute logarithm of non-positive number"):
+            ln(-1)
+
+    def test_ln_small_positive(self):
+        assert ln(0.5) == pytest.approx(-0.6931471805599453)
+
+
+class TestLog10:
+    """Tests for the log10 (base-10 logarithm) function."""
+
+    def test_log10_of_one(self):
+        assert log10(1) == 0
+
+    def test_log10_of_ten(self):
+        assert log10(10) == 1
+
+    def test_log10_of_hundred(self):
+        assert log10(100) == 2
+
+    def test_log10_of_thousand(self):
+        assert log10(1000) == 3
+
+    def test_log10_zero_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute logarithm of non-positive number"):
+            log10(0)
+
+    def test_log10_negative_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute logarithm of non-positive number"):
+            log10(-5)
+
+    def test_log10_fraction(self):
+        assert log10(0.1) == pytest.approx(-1.0)
+
+
+class TestLog:
+    """Tests for the log (custom base logarithm) function."""
+
+    def test_log_base_2(self):
+        assert log(8, 2) == pytest.approx(3.0)
+
+    def test_log_base_3(self):
+        assert log(27, 3) == pytest.approx(3.0)
+
+    def test_log_base_10(self):
+        assert log(100, 10) == pytest.approx(2.0)
+
+    def test_log_of_one_any_base(self):
+        assert log(1, 5) == 0
+
+    def test_log_zero_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute logarithm of non-positive number"):
+            log(0, 2)
+
+    def test_log_negative_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute logarithm of non-positive number"):
+            log(-8, 2)
+
+    def test_log_base_zero_raises_error(self):
+        with pytest.raises(ValueError, match="Logarithm base must be positive"):
+            log(8, 0)
+
+    def test_log_base_negative_raises_error(self):
+        with pytest.raises(ValueError, match="Logarithm base must be positive"):
+            log(8, -2)
+
+    def test_log_base_one_raises_error(self):
+        with pytest.raises(ValueError, match="Logarithm base cannot be 1"):
+            log(8, 1)
+
+    def test_log_fractional_result(self):
+        assert log(2, 4) == pytest.approx(0.5)
+
+
 class TestValidateNumber:
     """Tests for the validate_number function."""
 
@@ -199,6 +295,27 @@ class TestRunCalculation:
     def test_run_unary_operation_with_extra_arg(self):
         with pytest.raises(ValueError, match="Operation 'sqrt' takes only one argument"):
             run_calculation("sqrt", "16", "5")
+
+    def test_run_ln(self):
+        assert run_calculation("ln", "1") == 0
+
+    def test_run_ln_negative(self):
+        with pytest.raises(ValueError, match="Cannot compute logarithm of non-positive number"):
+            run_calculation("ln", "-1")
+
+    def test_run_log10(self):
+        assert run_calculation("log10", "100") == 2
+
+    def test_run_log10_negative(self):
+        with pytest.raises(ValueError, match="Cannot compute logarithm of non-positive number"):
+            run_calculation("log10", "-5")
+
+    def test_run_log(self):
+        assert run_calculation("log", "8", "2") == pytest.approx(3.0)
+
+    def test_run_log_invalid_base(self):
+        with pytest.raises(ValueError, match="Logarithm base cannot be 1"):
+            run_calculation("log", "8", "1")
 
 
 class TestFormatResult:
@@ -284,17 +401,86 @@ class TestMain:
         assert exit_code == 1
         assert "Cannot divide by zero" in captured.err
 
+    def test_main_ln(self, capsys):
+        exit_code = main(["ln", "1"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0"
+
+    def test_main_ln_e(self, capsys):
+        exit_code = main(["ln", "2.718281828"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert float(captured.out.strip()) == pytest.approx(1.0, abs=0.0001)
+
+    def test_main_ln_zero_error(self, capsys):
+        exit_code = main(["ln", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "non-positive" in captured.err
+
+    def test_main_ln_negative_error(self, capsys):
+        exit_code = main(["ln", "-1"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "non-positive" in captured.err
+
+    def test_main_log10(self, capsys):
+        exit_code = main(["log10", "100"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "2"
+
+    def test_main_log10_ten(self, capsys):
+        exit_code = main(["log10", "10"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "1"
+
+    def test_main_log10_thousand(self, capsys):
+        exit_code = main(["log10", "1000"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "3"
+
+    def test_main_log_base_2(self, capsys):
+        exit_code = main(["log", "8", "2"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "3"
+
+    def test_main_log_base_3(self, capsys):
+        exit_code = main(["log", "27", "3"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "3"
+
+    def test_main_log_base_1_error(self, capsys):
+        exit_code = main(["log", "8", "1"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "cannot be 1" in captured.err
+
 
 class TestOperationsRegistry:
     """Tests for the operations registry."""
 
     def test_all_operations_registered(self):
-        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log"}
         assert set(OPERATIONS.keys()) == expected_ops
 
     def test_sqrt_is_unary(self):
         assert "sqrt" in UNARY_OPERATIONS
 
+    def test_ln_is_unary(self):
+        assert "ln" in UNARY_OPERATIONS
+
+    def test_log10_is_unary(self):
+        assert "log10" in UNARY_OPERATIONS
+
+    def test_log_is_binary(self):
+        assert "log" not in UNARY_OPERATIONS
+
     def test_binary_ops_not_in_unary(self):
-        for op in ["add", "subtract", "multiply", "divide", "power"]:
+        for op in ["add", "subtract", "multiply", "divide", "power", "log"]:
             assert op not in UNARY_OPERATIONS
