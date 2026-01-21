@@ -1,12 +1,12 @@
-"""Tests for the calculator module."""
+"""Tests for the runner module."""
 
 import math
 import pytest
 import sys
 from io import StringIO
 
-import calculator
-from calculator import (
+import runner
+from runner import (
     add,
     subtract,
     multiply,
