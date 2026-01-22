@@ -1,6 +1,6 @@
 {
-  "workflow_id": "dev-qa-print-hello-world-c94661-task-standalone",
+  "workflow_id": "dev-qa-update-hello-world-to-hello-n-599226-task-standalone",
   "role": "dev",
-  "tmux_session": "vermas-dev-qa-print-hello-world-c94661",
+  "tmux_session": "vermas-dev-qa-update-hello-world-to-hello-n-599226",
   "pane": 0
 }

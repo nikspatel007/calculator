@@ -421,12 +421,12 @@ def stdev(values: list[Number]) -> Number:
 
 
 def hello_world() -> str:
-    """Print and return 'Hello, World!'.
+    """Print and return 'Hello, Nik!'.
 
     Returns:
-        The string 'Hello, World!'.
+        The string 'Hello, Nik!'.
     """
-    message = "Hello, World!"
+    message = "Hello, Nik!"
     print(message)
     return message
 
