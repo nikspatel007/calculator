@@ -22,6 +22,7 @@ from runner import (
     sind,
     cosd,
     tand,
+    factorial,
     mean,
     median,
     variance,
@@ -384,6 +385,34 @@ class TestTand:
             tand(450)
 
 
+class TestFactorial:
+    """Tests for the factorial function."""
+
+    def test_factorial_of_zero(self):
+        assert factorial(0) == 1
+
+    def test_factorial_of_one(self):
+        assert factorial(1) == 1
+
+    def test_factorial_of_five(self):
+        assert factorial(5) == 120
+
+    def test_factorial_of_ten(self):
+        assert factorial(10) == 3628800
+
+    def test_factorial_of_float_integer(self):
+        # 5.0 should be treated as 5
+        assert factorial(5.0) == 120
+
+    def test_factorial_negative_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute factorial of negative number"):
+            factorial(-1)
+
+    def test_factorial_non_integer_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute factorial of non-integer"):
+            factorial(5.5)
+
+
 class TestMean:
     """Tests for the mean function."""
 
@@ -680,6 +709,20 @@ class TestRunCalculation:
     def test_run_tand_90_raises_error(self):
         with pytest.raises(ValueError, match="Tangent undefined"):
             run_calculation("tand", "90")
+
+    def test_run_factorial(self):
+        assert run_calculation("factorial", "5") == 120
+
+    def test_run_factorial_zero(self):
+        assert run_calculation("factorial", "0") == 1
+
+    def test_run_factorial_negative_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute factorial of negative number"):
+            run_calculation("factorial", "-1")
+
+    def test_run_factorial_non_integer_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute factorial of non-integer"):
+            run_calculation("factorial", "5.5")
 
 
 class TestFormatResult:
@@ -1046,12 +1089,42 @@ class TestMain:
         assert exit_code == 1
         assert "Tangent undefined" in captured.err
 
+    def test_main_factorial(self, capsys):
+        exit_code = main(["factorial", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "120"
+
+    def test_main_factorial_zero(self, capsys):
+        exit_code = main(["factorial", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "1"
+
+    def test_main_factorial_ten(self, capsys):
+        exit_code = main(["factorial", "10"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "3628800"
+
+    def test_main_factorial_negative_error(self, capsys):
+        exit_code = main(["factorial", "-1"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "negative number" in captured.err
+
+    def test_main_factorial_non_integer_error(self, capsys):
+        exit_code = main(["factorial", "5.5"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "non-integer" in captured.err
+
 
 class TestOperationsRegistry:
     """Tests for the operations registry."""
 
     def test_all_operations_registered(self):
-        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "mean", "median", "variance", "stdev"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "factorial", "mean", "median", "variance", "stdev"}
         assert set(OPERATIONS.keys()) == expected_ops
 
     def test_sqrt_is_unary(self):
@@ -1080,6 +1153,9 @@ class TestOperationsRegistry:
 
     def test_tand_is_unary(self):
         assert "tand" in UNARY_OPERATIONS
+
+    def test_factorial_is_unary(self):
+        assert "factorial" in UNARY_OPERATIONS
 
     def test_log_is_binary(self):
         assert "log" not in UNARY_OPERATIONS
