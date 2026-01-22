@@ -33,6 +33,7 @@ from runner import (
     main,
     create_parser,
     hello_world,
+    goodbye,
     OPERATIONS,
     UNARY_OPERATIONS,
     LIST_OPERATIONS,
@@ -1235,3 +1236,16 @@ class TestHelloWorld:
         hello_world()
         captured = capsys.readouterr()
         assert captured.out.strip() == "Hello, Nik!"
+
+
+class TestGoodbye:
+    """Tests for the goodbye function."""
+
+    def test_goodbye_returns_message(self):
+        result = goodbye()
+        assert result == "Goodbye!"
+
+    def test_goodbye_prints_message(self, capsys):
+        goodbye()
+        captured = capsys.readouterr()
+        assert captured.out.strip() == "Goodbye!"

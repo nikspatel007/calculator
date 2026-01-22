@@ -432,6 +432,17 @@ def hello_world() -> str:
     return message
 
 
+def goodbye() -> str:
+    """Print and return 'Goodbye!'.
+
+    Returns:
+        The string 'Goodbye!'.
+    """
+    message = "Goodbye!"
+    print(message)
+    return message
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 

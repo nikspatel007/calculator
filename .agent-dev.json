@@ -1,6 +1,6 @@
 {
-  "workflow_id": "dev-qa-add-a-comment-to-hello-world-3031fd-task-standalone",
+  "workflow_id": "dev-qa-say-goodbye-e7d371-task-standalone",
   "role": "dev",
-  "tmux_session": "vermas-dev-qa-add-a-comment-to-hello-world-3031fd",
+  "tmux_session": "vermas-dev-qa-say-goodbye-e7d371",
   "pane": 0
 }
