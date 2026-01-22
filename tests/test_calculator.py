@@ -1229,9 +1229,9 @@ class TestHelloWorld:
 
     def test_hello_world_returns_message(self):
         result = hello_world()
-        assert result == "Hello, World!"
+        assert result == "Hello, Nik!"
 
     def test_hello_world_prints_message(self, capsys):
         hello_world()
         captured = capsys.readouterr()
-        assert captured.out.strip() == "Hello, World!"
+        assert captured.out.strip() == "Hello, Nik!"
