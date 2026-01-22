@@ -1,6 +1,6 @@
 {
-  "workflow_id": "r-25a741",
+  "workflow_id": "dev-qa-print-hello-world-c94661-task-standalone",
   "role": "qa",
-  "tmux_session": "vermas-dev-qa-implement-history-tracking-per-25a741",
+  "tmux_session": "vermas-dev-qa-print-hello-world-c94661",
   "pane": 1
 }

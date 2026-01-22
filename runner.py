@@ -420,6 +420,17 @@ def stdev(values: list[Number]) -> Number:
     return math.sqrt(variance(values))
 
 
+def hello_world() -> str:
+    """Print and return 'Hello, World!'.
+
+    Returns:
+        The string 'Hello, World!'.
+    """
+    message = "Hello, World!"
+    print(message)
+    return message
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 

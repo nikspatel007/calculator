@@ -32,6 +32,7 @@ from runner import (
     format_result,
     main,
     create_parser,
+    hello_world,
     OPERATIONS,
     UNARY_OPERATIONS,
     LIST_OPERATIONS,
@@ -1221,3 +1222,16 @@ class TestOperationsRegistry:
     def test_list_ops_not_in_unary(self):
         for op in ["mean", "median", "variance", "stdev"]:
             assert op not in UNARY_OPERATIONS
+
+
+class TestHelloWorld:
+    """Tests for the hello_world function."""
+
+    def test_hello_world_returns_message(self):
+        result = hello_world()
+        assert result == "Hello, World!"
+
+    def test_hello_world_prints_message(self, capsys):
+        hello_world()
+        captured = capsys.readouterr()
+        assert captured.out.strip() == "Hello, World!"
