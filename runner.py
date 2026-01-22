@@ -144,7 +144,12 @@ def power(base: Number, exponent: Number) -> Number:
 
     Returns:
         base raised to the power of exponent.
+
+    Raises:
+        ValueError: If base is zero and exponent is negative.
     """
+    if base == 0 and exponent < 0:
+        raise ValueError("Cannot raise zero to a negative power")
     return base ** exponent
 
 

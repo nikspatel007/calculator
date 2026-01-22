@@ -127,6 +127,23 @@ class TestPower:
     def test_power_fractional_exponent(self):
         assert power(4, 0.5) == 2.0
 
+    def test_power_negative_exponent_decimal(self):
+        assert power(2, -2) == 0.25
+
+    def test_power_zero_base_positive_exponent(self):
+        assert power(0, 5) == 0
+
+    def test_power_zero_base_zero_exponent(self):
+        assert power(0, 0) == 1
+
+    def test_power_zero_base_negative_exponent_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot raise zero to a negative power"):
+            power(0, -1)
+
+    def test_power_zero_base_negative_fractional_exponent_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot raise zero to a negative power"):
+            power(0, -0.5)
+
 
 class TestSqrt:
     """Tests for the sqrt function."""
@@ -586,6 +603,13 @@ class TestRunCalculation:
     def test_run_power(self):
         assert run_calculation("power", "2", "3") == 8
 
+    def test_run_power_negative_exponent(self):
+        assert run_calculation("power", "2", "-2") == 0.25
+
+    def test_run_power_zero_base_negative_exponent_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot raise zero to a negative power"):
+            run_calculation("power", "0", "-1")
+
     def test_run_sqrt(self):
         assert run_calculation("sqrt", "16") == 4
 
@@ -811,6 +835,24 @@ class TestMain:
         captured = capsys.readouterr()
         assert exit_code == 1
         assert "Cannot divide by zero" in captured.err
+
+    def test_main_power(self, capsys):
+        exit_code = main(["power", "2", "3"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "8"
+
+    def test_main_power_negative_exponent(self, capsys):
+        exit_code = main(["power", "2", "-2"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0.25"
+
+    def test_main_power_zero_base_negative_exponent_error(self, capsys):
+        exit_code = main(["power", "0", "-1"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "Cannot raise zero to a negative power" in captured.err
 
     def test_main_ln(self, capsys):
         exit_code = main(["ln", "1"])
