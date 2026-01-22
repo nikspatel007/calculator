@@ -31,3 +31,6 @@ venv/
 # VerMAS runtime files
 .agent-*.json
 .coverage
+
+# VerMAS task metadata
+.vermas/
