@@ -317,6 +317,26 @@ def tand(a: Number) -> Number:
     return math.tan(math.radians(a))
 
 
+@register_operation("factorial", unary=True)
+def factorial(a: Number) -> Number:
+    """Compute the factorial of a non-negative integer.
+
+    Args:
+        a: The number to compute the factorial of (must be a non-negative integer).
+
+    Returns:
+        The factorial of a (a!).
+
+    Raises:
+        ValueError: If a is negative or not an integer.
+    """
+    if a < 0:
+        raise ValueError("Cannot compute factorial of negative number")
+    if a != int(a):
+        raise ValueError("Cannot compute factorial of non-integer")
+    return float(math.factorial(int(a)))
+
+
 @register_operation("mean", list_op=True)
 def mean(values: list[Number]) -> Number:
     """Compute the arithmetic mean of a list of numbers.
