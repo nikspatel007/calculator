@@ -426,6 +426,7 @@ def hello_world() -> str:
     Returns:
         The string 'Hello, Nik!'.
     """
+    # Greeting message to display
     message = "Hello, Nik!"
     print(message)
     return message
