@@ -198,6 +198,23 @@ def negate(a: Number) -> Number:
     return -a
 
 
+@register_operation("sign", unary=True)
+def sign(a: Number) -> Number:
+    """Return the sign of a number.
+
+    Args:
+        a: The number to get the sign of.
+
+    Returns:
+        -1 if a is negative, 0 if a is zero, 1 if a is positive.
+    """
+    if a < 0:
+        return -1
+    elif a > 0:
+        return 1
+    return 0
+
+
 @register_operation("ceil", unary=True)
 def ceil(a: Number) -> Number:
     """Compute the ceiling of a number (round up to nearest integer).
