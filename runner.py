@@ -281,6 +281,12 @@ def is_odd(a: Number) -> bool:
     return int(a) % 2 != 0
 
 
+@register_operation("is_positive", unary=True)
+def is_positive(a: Number) -> bool:
+    """Check if a number is positive (greater than zero)."""
+    return a > 0
+
+
 @register_operation("ceil", unary=True)
 def ceil(a: Number) -> Number:
     """Compute the ceiling of a number (round up to nearest integer).
