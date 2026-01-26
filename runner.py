@@ -263,6 +263,24 @@ def is_even(a: Number) -> bool:
     return int(a) % 2 == 0
 
 
+@register_operation("is_odd", unary=True)
+def is_odd(a: Number) -> bool:
+    """Check if a number is odd.
+
+    Args:
+        a: The number to check.
+
+    Returns:
+        True if the number is odd, False otherwise.
+
+    Raises:
+        ValueError: If the number is not an integer.
+    """
+    if a != int(a):
+        raise ValueError("Cannot determine if non-integer is odd")
+    return int(a) % 2 != 0
+
+
 @register_operation("ceil", unary=True)
 def ceil(a: Number) -> Number:
     """Compute the ceiling of a number (round up to nearest integer).
