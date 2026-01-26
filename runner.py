@@ -172,6 +172,19 @@ def power(base: Number, exponent: Number) -> Number:
     return base ** exponent
 
 
+@register_operation("abs", unary=True)
+def abs_val(a: Number) -> Number:
+    """Compute the absolute value of a number.
+
+    Args:
+        a: The number to compute the absolute value of.
+
+    Returns:
+        The absolute value of a.
+    """
+    return abs(a)
+
+
 @register_operation("sqrt", unary=True)
 def sqrt(a: Number) -> Number:
     """Compute the square root of a number.

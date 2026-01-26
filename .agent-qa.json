@@ -1,7 +1,7 @@
 {
-  "workflow_id": "dev-qa-add-a-modulo-operation-that-re-f0d7ab-task-standalone",
+  "workflow_id": "dev-qa-add-an-absolute-value-function-9abd0a-task-standalone",
   "role": "qa",
-  "tmux_session": "vermas-dev-qa-add-a-modulo-operation-that-re-f0d7ab",
+  "tmux_session": "vermas-dev-qa-add-an-absolute-value-function-9abd0a",
   "pane": 1,
   "project_dir": "/Users/nikpatel/Documents/GitHub/calculator"
 }

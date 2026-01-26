@@ -7,6 +7,7 @@ from io import StringIO
 
 import runner
 from runner import (
+    abs_val,
     add,
     subtract,
     multiply,
@@ -171,6 +172,28 @@ class TestPower:
     def test_power_zero_base_negative_fractional_exponent_raises_error(self):
         with pytest.raises(ValueError, match="Cannot raise zero to a negative power"):
             power(0, -0.5)
+
+
+class TestAbsVal:
+    """Tests for the abs_val function."""
+
+    def test_abs_val_positive_number(self):
+        assert abs_val(5) == 5
+
+    def test_abs_val_negative_number(self):
+        assert abs_val(-5) == 5
+
+    def test_abs_val_zero(self):
+        assert abs_val(0) == 0
+
+    def test_abs_val_positive_float(self):
+        assert abs_val(3.14) == 3.14
+
+    def test_abs_val_negative_float(self):
+        assert abs_val(-3.14) == 3.14
+
+    def test_abs_val_large_negative(self):
+        assert abs_val(-1000000) == 1000000
 
 
 class TestSqrt:
@@ -645,6 +668,15 @@ class TestRunCalculation:
         with pytest.raises(ValueError, match="Cannot raise zero to a negative power"):
             run_calculation("power", "0", "-1")
 
+    def test_run_abs_positive(self):
+        assert run_calculation("abs", "5") == 5
+
+    def test_run_abs_negative(self):
+        assert run_calculation("abs", "-5") == 5
+
+    def test_run_abs_zero(self):
+        assert run_calculation("abs", "0") == 0
+
     def test_run_sqrt(self):
         assert run_calculation("sqrt", "16") == 4
 
@@ -906,6 +938,30 @@ class TestMain:
         captured = capsys.readouterr()
         assert exit_code == 1
         assert "Cannot raise zero to a negative power" in captured.err
+
+    def test_main_abs_positive(self, capsys):
+        exit_code = main(["abs", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "5"
+
+    def test_main_abs_negative(self, capsys):
+        exit_code = main(["abs", "-5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "5"
+
+    def test_main_abs_zero(self, capsys):
+        exit_code = main(["abs", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0"
+
+    def test_main_abs_float(self, capsys):
+        exit_code = main(["abs", "-3.14"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "3.14"
 
     def test_main_ln(self, capsys):
         exit_code = main(["ln", "1"])
@@ -1219,8 +1275,11 @@ class TestOperationsRegistry:
     """Tests for the operations registry."""
 
     def test_all_operations_registered(self):
-        expected_ops = {"add", "subtract", "multiply", "divide", "modulo", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "factorial", "mean", "median", "variance", "stdev"}
+        expected_ops = {"abs", "add", "subtract", "multiply", "divide", "modulo", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "factorial", "mean", "median", "variance", "stdev"}
         assert set(OPERATIONS.keys()) == expected_ops
+
+    def test_abs_is_unary(self):
+        assert "abs" in UNARY_OPERATIONS
 
     def test_sqrt_is_unary(self):
         assert "sqrt" in UNARY_OPERATIONS
