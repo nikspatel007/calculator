@@ -10,6 +10,7 @@ from runner import (
     OPERATIONS,
     UNARY_OPERATIONS,
     LIST_OPERATIONS,
+    TERNARY_OPERATIONS,
 )
 
 
@@ -480,7 +481,7 @@ class TestOperationsRegistry:
     """Tests for the operations registry."""
 
     def test_all_operations_registered(self):
-        expected_ops = {"abs", "add", "ceil", "floor", "negate", "round", "subtract", "multiply", "divide", "modulo", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "factorial", "mean", "median", "variance", "stdev", "sign"}
+        expected_ops = {"abs", "add", "ceil", "clamp", "floor", "negate", "round", "subtract", "multiply", "divide", "modulo", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "factorial", "mean", "median", "variance", "stdev", "sign"}
         assert set(OPERATIONS.keys()) == expected_ops
 
     def test_abs_is_unary(self):
@@ -553,6 +554,15 @@ class TestOperationsRegistry:
     def test_list_ops_not_in_unary(self):
         for op in ["mean", "median", "variance", "stdev"]:
             assert op not in UNARY_OPERATIONS
+
+    def test_clamp_is_ternary(self):
+        assert "clamp" in TERNARY_OPERATIONS
+
+    def test_clamp_not_in_unary(self):
+        assert "clamp" not in UNARY_OPERATIONS
+
+    def test_clamp_not_in_list(self):
+        assert "clamp" not in LIST_OPERATIONS
 
 
 class TestHelloWorld:

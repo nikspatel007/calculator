@@ -35,14 +35,18 @@ UNARY_OPERATIONS: set[str] = set()
 # Track which operations take a list of arguments
 LIST_OPERATIONS: set[str] = set()
 
+# Track which operations take three arguments
+TERNARY_OPERATIONS: set[str] = set()
 
-def register_operation(name: str, unary: bool = False, list_op: bool = False) -> Callable[[Operation], Operation]:
+
+def register_operation(name: str, unary: bool = False, list_op: bool = False, ternary: bool = False) -> Callable[[Operation], Operation]:
     """Decorator to register an operation in the operations registry.
 
     Args:
         name: The name of the operation.
         unary: If True, marks this as a single-argument operation.
         list_op: If True, marks this as a list operation (takes multiple values).
+        ternary: If True, marks this as a three-argument operation.
     """
     def decorator(func: Operation) -> Operation:
         OPERATIONS[name] = func
@@ -50,6 +54,8 @@ def register_operation(name: str, unary: bool = False, list_op: bool = False) ->
             UNARY_OPERATIONS.add(name)
         if list_op:
             LIST_OPERATIONS.add(name)
+        if ternary:
+            TERNARY_OPERATIONS.add(name)
         return func
     return decorator
 
@@ -170,6 +176,30 @@ def power(base: Number, exponent: Number) -> Number:
     if base == 0 and exponent < 0:
         raise ValueError("Cannot raise zero to a negative power")
     return base ** exponent
+
+
+@register_operation("clamp", ternary=True)
+def clamp(value: Number, min_val: Number, max_val: Number) -> Number:
+    """Clamp a value to a specified range.
+
+    Args:
+        value: The value to clamp.
+        min_val: The minimum value of the range.
+        max_val: The maximum value of the range.
+
+    Returns:
+        The value clamped to the range [min_val, max_val].
+
+    Raises:
+        ValueError: If min_val is greater than max_val.
+    """
+    if min_val > max_val:
+        raise ValueError("Minimum value cannot be greater than maximum value")
+    if value < min_val:
+        return min_val
+    if value > max_val:
+        return max_val
+    return value
 
 
 @register_operation("abs", unary=True)
@@ -555,19 +585,20 @@ def create_parser() -> argparse.ArgumentParser:
         "numbers",
         type=str,
         nargs="*",
-        help="Numbers for the operation (1 for unary, 2 for binary, multiple for list operations)",
+        help="Numbers for the operation (1 for unary, 2 for binary, 3 for ternary, multiple for list operations)",
     )
 
     return parser
 
 
-def run_calculation(operation: str, num1: str, num2: str | None = None, numbers: list[str] | None = None) -> Number:
+def run_calculation(operation: str, num1: str, num2: str | None = None, num3: str | None = None, numbers: list[str] | None = None) -> Number:
     """Run a calculation with the specified operation and operands.
 
     Args:
         operation: Name of the operation to perform.
         num1: First operand as string (for backward compatibility).
         num2: Second operand as string (optional for unary operations).
+        num3: Third operand as string (optional, for ternary operations like clamp).
         numbers: List of number strings (for list operations like mean, median).
 
     Returns:
@@ -597,6 +628,13 @@ def run_calculation(operation: str, num1: str, num2: str | None = None, numbers:
         if num2 is not None:
             raise ValueError(f"Operation '{operation}' takes only one argument")
         return OPERATIONS[operation](a)
+
+    if operation in TERNARY_OPERATIONS:
+        if num2 is None or num3 is None:
+            raise ValueError(f"Operation '{operation}' requires three arguments")
+        b = validate_number(num2, "second number")
+        c = validate_number(num3, "third number")
+        return OPERATIONS[operation](a, b, c)
 
     if num2 is None:
         raise ValueError(f"Operation '{operation}' requires two arguments")
@@ -635,13 +673,19 @@ def main(argv: list[str] | None = None) -> int:
     try:
         numbers = args.numbers
         if args.operation in LIST_OPERATIONS:
-            result = run_calculation(args.operation, "", None, numbers=numbers)
+            result = run_calculation(args.operation, "", None, None, numbers=numbers)
         elif args.operation in UNARY_OPERATIONS:
             if len(numbers) < 1:
                 raise ValueError(f"Operation '{args.operation}' requires one argument")
             if len(numbers) > 1:
                 raise ValueError(f"Operation '{args.operation}' takes only one argument")
             result = run_calculation(args.operation, numbers[0], None)
+        elif args.operation in TERNARY_OPERATIONS:
+            if len(numbers) < 3:
+                raise ValueError(f"Operation '{args.operation}' requires three arguments")
+            if len(numbers) > 3:
+                raise ValueError(f"Operation '{args.operation}' takes only three arguments")
+            result = run_calculation(args.operation, numbers[0], numbers[1], numbers[2])
         else:
             if len(numbers) < 2:
                 raise ValueError(f"Operation '{args.operation}' requires two arguments")
