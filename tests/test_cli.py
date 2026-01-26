@@ -480,11 +480,14 @@ class TestOperationsRegistry:
     """Tests for the operations registry."""
 
     def test_all_operations_registered(self):
-        expected_ops = {"abs", "add", "ceil", "floor", "round", "subtract", "multiply", "divide", "modulo", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "factorial", "mean", "median", "variance", "stdev"}
+        expected_ops = {"abs", "add", "ceil", "floor", "negate", "round", "subtract", "multiply", "divide", "modulo", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "factorial", "mean", "median", "variance", "stdev"}
         assert set(OPERATIONS.keys()) == expected_ops
 
     def test_abs_is_unary(self):
         assert "abs" in UNARY_OPERATIONS
+
+    def test_negate_is_unary(self):
+        assert "negate" in UNARY_OPERATIONS
 
     def test_ceil_is_unary(self):
         assert "ceil" in UNARY_OPERATIONS

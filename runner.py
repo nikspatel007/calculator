@@ -185,6 +185,19 @@ def abs_val(a: Number) -> Number:
     return abs(a)
 
 
+@register_operation("negate", unary=True)
+def negate(a: Number) -> Number:
+    """Negate a number (multiply by -1).
+
+    Args:
+        a: The number to negate.
+
+    Returns:
+        The negation of a.
+    """
+    return -a
+
+
 @register_operation("ceil", unary=True)
 def ceil(a: Number) -> Number:
     """Compute the ceiling of a number (round up to nearest integer).
