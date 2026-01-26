@@ -211,6 +211,19 @@ def floor(a: Number) -> Number:
     return float(math.floor(a))
 
 
+@register_operation("round", unary=True)
+def round_val(a: Number) -> Number:
+    """Round a number to the nearest integer.
+
+    Args:
+        a: The number to round.
+
+    Returns:
+        The nearest integer to a.
+    """
+    return float(round(a))
+
+
 @register_operation("sqrt", unary=True)
 def sqrt(a: Number) -> Number:
     """Compute the square root of a number.

@@ -8,6 +8,7 @@ from runner import (
     add,
     ceil,
     floor,
+    round_val,
     subtract,
     multiply,
     divide,
@@ -247,6 +248,47 @@ class TestFloor:
 
     def test_floor_large_negative(self):
         assert floor(-999.001) == -1000
+
+
+class TestRound:
+    """Tests for the round_val function."""
+
+    def test_round_positive_float_down(self):
+        assert round_val(3.2) == 3
+
+    def test_round_positive_float_up(self):
+        assert round_val(3.7) == 4
+
+    def test_round_negative_float_down(self):
+        assert round_val(-3.7) == -4
+
+    def test_round_negative_float_up(self):
+        assert round_val(-3.2) == -3
+
+    def test_round_positive_integer(self):
+        assert round_val(5.0) == 5
+
+    def test_round_negative_integer(self):
+        assert round_val(-5.0) == -5
+
+    def test_round_zero(self):
+        assert round_val(0) == 0
+
+    def test_round_half_to_even_positive(self):
+        # Python uses banker's rounding (round half to even)
+        assert round_val(2.5) == 2
+        assert round_val(3.5) == 4
+
+    def test_round_half_to_even_negative(self):
+        # Python uses banker's rounding (round half to even)
+        assert round_val(-2.5) == -2
+        assert round_val(-3.5) == -4
+
+    def test_round_large_positive(self):
+        assert round_val(999.5) == 1000
+
+    def test_round_large_negative(self):
+        assert round_val(-999.5) == -1000
 
 
 class TestSqrt:
