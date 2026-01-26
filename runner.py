@@ -134,6 +134,25 @@ def divide(a: Number, b: Number) -> Number:
     return a / b
 
 
+@register_operation("modulo")
+def modulo(a: Number, b: Number) -> Number:
+    """Compute the remainder of a divided by b.
+
+    Args:
+        a: Dividend.
+        b: Divisor.
+
+    Returns:
+        Remainder of a divided by b.
+
+    Raises:
+        ValueError: If b is zero.
+    """
+    if b == 0:
+        raise ValueError("Cannot compute modulo with zero divisor")
+    return a % b
+
+
 @register_operation("power")
 def power(base: Number, exponent: Number) -> Number:
     """Raise base to the power of exponent.

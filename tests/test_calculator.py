@@ -11,6 +11,7 @@ from runner import (
     subtract,
     multiply,
     divide,
+    modulo,
     power,
     sqrt,
     ln,
@@ -111,6 +112,32 @@ class TestDivide:
     def test_divide_by_zero_raises_error(self):
         with pytest.raises(ValueError, match="Cannot divide by zero"):
             divide(5, 0)
+
+
+class TestModulo:
+    """Tests for the modulo function."""
+
+    def test_modulo_positive_numbers(self):
+        assert modulo(10, 3) == 1
+
+    def test_modulo_exact_division(self):
+        assert modulo(10, 5) == 0
+
+    def test_modulo_negative_dividend(self):
+        assert modulo(-10, 3) == 2
+
+    def test_modulo_negative_divisor(self):
+        assert modulo(10, -3) == -2
+
+    def test_modulo_both_negative(self):
+        assert modulo(-10, -3) == -1
+
+    def test_modulo_floats(self):
+        assert modulo(10.5, 3) == pytest.approx(1.5)
+
+    def test_modulo_by_zero_raises_error(self):
+        with pytest.raises(ValueError, match="Cannot compute modulo with zero divisor"):
+            modulo(5, 0)
 
 
 class TestPower:
@@ -601,6 +628,13 @@ class TestRunCalculation:
     def test_run_divide(self):
         assert run_calculation("divide", "6", "3") == 2
 
+    def test_run_modulo(self):
+        assert run_calculation("modulo", "10", "3") == 1
+
+    def test_run_modulo_by_zero(self):
+        with pytest.raises(ValueError, match="Cannot compute modulo with zero divisor"):
+            run_calculation("modulo", "10", "0")
+
     def test_run_power(self):
         assert run_calculation("power", "2", "3") == 8
 
@@ -836,6 +870,24 @@ class TestMain:
         captured = capsys.readouterr()
         assert exit_code == 1
         assert "Cannot divide by zero" in captured.err
+
+    def test_main_modulo(self, capsys):
+        exit_code = main(["modulo", "10", "3"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "1"
+
+    def test_main_modulo_exact_division(self, capsys):
+        exit_code = main(["modulo", "10", "5"])
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out.strip() == "0"
+
+    def test_main_modulo_by_zero_error(self, capsys):
+        exit_code = main(["modulo", "10", "0"])
+        captured = capsys.readouterr()
+        assert exit_code == 1
+        assert "Cannot compute modulo with zero divisor" in captured.err
 
     def test_main_power(self, capsys):
         exit_code = main(["power", "2", "3"])
@@ -1167,7 +1219,7 @@ class TestOperationsRegistry:
     """Tests for the operations registry."""
 
     def test_all_operations_registered(self):
-        expected_ops = {"add", "subtract", "multiply", "divide", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "factorial", "mean", "median", "variance", "stdev"}
+        expected_ops = {"add", "subtract", "multiply", "divide", "modulo", "power", "sqrt", "ln", "log10", "log", "sin", "cos", "tan", "sind", "cosd", "tand", "factorial", "mean", "median", "variance", "stdev"}
         assert set(OPERATIONS.keys()) == expected_ops
 
     def test_sqrt_is_unary(self):
@@ -1204,7 +1256,7 @@ class TestOperationsRegistry:
         assert "log" not in UNARY_OPERATIONS
 
     def test_binary_ops_not_in_unary(self):
-        for op in ["add", "subtract", "multiply", "divide", "power", "log"]:
+        for op in ["add", "subtract", "multiply", "divide", "modulo", "power", "log"]:
             assert op not in UNARY_OPERATIONS
 
     def test_mean_is_list_operation(self):
