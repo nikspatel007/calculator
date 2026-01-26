@@ -185,6 +185,19 @@ def abs_val(a: Number) -> Number:
     return abs(a)
 
 
+@register_operation("ceil", unary=True)
+def ceil(a: Number) -> Number:
+    """Compute the ceiling of a number (round up to nearest integer).
+
+    Args:
+        a: The number to compute the ceiling of.
+
+    Returns:
+        The smallest integer greater than or equal to a.
+    """
+    return float(math.ceil(a))
+
+
 @register_operation("sqrt", unary=True)
 def sqrt(a: Number) -> Number:
     """Compute the square root of a number.
