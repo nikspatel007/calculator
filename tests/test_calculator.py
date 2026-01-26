@@ -7,6 +7,7 @@ from runner import (
     abs_val,
     add,
     ceil,
+    floor,
     subtract,
     multiply,
     divide,
@@ -215,6 +216,37 @@ class TestCeil:
 
     def test_ceil_large_negative(self):
         assert ceil(-999.999) == -999
+
+
+class TestFloor:
+    """Tests for the floor function."""
+
+    def test_floor_positive_float(self):
+        assert floor(3.7) == 3
+
+    def test_floor_negative_float(self):
+        assert floor(-3.2) == -4
+
+    def test_floor_positive_integer(self):
+        assert floor(5.0) == 5
+
+    def test_floor_negative_integer(self):
+        assert floor(-5.0) == -5
+
+    def test_floor_zero(self):
+        assert floor(0) == 0
+
+    def test_floor_small_positive_fraction(self):
+        assert floor(0.9) == 0
+
+    def test_floor_small_negative_fraction(self):
+        assert floor(-0.1) == -1
+
+    def test_floor_large_positive(self):
+        assert floor(999.999) == 999
+
+    def test_floor_large_negative(self):
+        assert floor(-999.001) == -1000
 
 
 class TestSqrt:

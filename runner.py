@@ -198,6 +198,19 @@ def ceil(a: Number) -> Number:
     return float(math.ceil(a))
 
 
+@register_operation("floor", unary=True)
+def floor(a: Number) -> Number:
+    """Compute the floor of a number (round down to nearest integer).
+
+    Args:
+        a: The number to compute the floor of.
+
+    Returns:
+        The largest integer less than or equal to a.
+    """
+    return float(math.floor(a))
+
+
 @register_operation("sqrt", unary=True)
 def sqrt(a: Number) -> Number:
     """Compute the square root of a number.
