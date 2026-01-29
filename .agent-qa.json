@@ -1,7 +1,6 @@
 {
-  "workflow_id": "default-add-a-sign-function-that-retur-0ff5e1-task-sign",
+  "workflow_id": "dev-qa-add-a-scientific-calculator-mo-e8bc37",
   "role": "qa",
-  "tmux_session": "vermas-default-add-a-sign-function-that-retur-0ff5e1",
-  "pane": 1,
-  "project_dir": "/Users/nikpatel/Documents/GitHub/calculator"
+  "tmux_session": "vermas-dev-qa-add-a-scientific-calculator-mo-e8bc37",
+  "pane": 1
 }
