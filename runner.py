@@ -344,6 +344,25 @@ def sqrt(a: Number) -> Number:
     return math.sqrt(a)
 
 
+@register_operation("exp", unary=True)
+def exp(a: Number) -> Number:
+    """Compute e raised to the power of x (e^x).
+
+    Args:
+        a: The exponent.
+
+    Returns:
+        e raised to the power of a (Euler's number ~2.71828 raised to x).
+
+    Raises:
+        ValueError: If the result would overflow (x is too large).
+    """
+    try:
+        return math.exp(a)
+    except OverflowError:
+        raise ValueError("Result too large: exponential overflow")
+
+
 @register_operation("ln", unary=True)
 def ln(a: Number) -> Number:
     """Compute the natural logarithm of a number.

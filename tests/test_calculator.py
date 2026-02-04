@@ -15,6 +15,7 @@ from runner import (
     modulo,
     power,
     sqrt,
+    exp,
     ln,
     log10,
     log,
@@ -318,6 +319,68 @@ class TestSqrt:
 
     def test_sqrt_large_number(self):
         assert sqrt(10000) == 100
+
+
+class TestExp:
+    """Tests for the exp function (e^x)."""
+
+    def test_exp_of_zero(self):
+        # e^0 = 1
+        assert exp(0) == 1
+
+    def test_exp_of_one(self):
+        # e^1 = e
+        assert exp(1) == pytest.approx(math.e)
+
+    def test_exp_of_two(self):
+        # e^2 = e^2
+        assert exp(2) == pytest.approx(math.e ** 2)
+
+    def test_exp_positive_value(self):
+        # e^0.5
+        assert exp(0.5) == pytest.approx(math.sqrt(math.e))
+
+    def test_exp_negative_one(self):
+        # e^-1 = 1/e
+        assert exp(-1) == pytest.approx(1 / math.e)
+
+    def test_exp_negative_value(self):
+        # e^-2 = 1/e^2
+        assert exp(-2) == pytest.approx(1 / (math.e ** 2))
+
+    def test_exp_small_positive(self):
+        # e^0.001 is close to 1.001...
+        assert exp(0.001) == pytest.approx(1.0010005001667084)
+
+    def test_exp_small_negative(self):
+        # e^-0.001 is close to 0.999...
+        assert exp(-0.001) == pytest.approx(0.9990004998333417)
+
+    def test_exp_large_negative_underflows_to_near_zero(self):
+        # Very large negative x results in a value very close to 0
+        result = exp(-700)
+        assert result >= 0
+        assert result < 1e-300
+
+    def test_exp_very_large_negative_underflows(self):
+        # Even larger negative values should still return 0 or near-zero
+        result = exp(-1000)
+        assert result == 0  # Python underflows to 0
+
+    def test_exp_overflow_raises_error(self):
+        # Very large positive values cause overflow
+        with pytest.raises(ValueError, match="Result too large: exponential overflow"):
+            exp(1000)
+
+    def test_exp_ln_inverse(self):
+        # exp and ln are inverses: exp(ln(x)) = x for x > 0
+        assert exp(math.log(5)) == pytest.approx(5)
+        assert exp(math.log(10)) == pytest.approx(10)
+
+    def test_exp_ln_identity(self):
+        # ln(exp(x)) = x for any x
+        assert math.log(exp(3)) == pytest.approx(3)
+        assert math.log(exp(-2)) == pytest.approx(-2)
 
 
 class TestLn:
